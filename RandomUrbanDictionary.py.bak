@@ -60,6 +60,7 @@ if __name__ == "__main__":
     options = Options()
     options.headless = True
     service = Service("/home/pi/geckodriver")
+    # service = Service("C:\\Users\\xhico\\OneDrive\\Useful\\geckodriver.exe")
     browser = webdriver.Firefox(service=service, options=options)
 
     try:
