@@ -5,6 +5,7 @@
 
 import json
 import os
+import urllib.parse
 
 import tweepy
 import yagmail
@@ -45,12 +46,14 @@ def getRandom():
     options = Options()
     options.headless = True
     service = Service("/home/pi/geckodriver")
+    # service = Service("C:\\Users\\xhico\\OneDrive\\Useful\\geckodriver.exe")
     browser = webdriver.Firefox(service=service, options=options)
     browser.get("https://www.urbandictionary.com/random.php")
 
     post = browser.find_elements(By.CLASS_NAME, "def-panel")[0]
     header = post.find_elements(By.CLASS_NAME, "def-header")[0].find_elements(By.CLASS_NAME, "word")[0]
-    link = header.get_attribute('href')
+    link = browser.find_elements(By.CLASS_NAME, "social-interaction")[0].get_attribute('href').split("&")[4]
+    link = urllib.parse.unquote(link.replace("url=", ""))
     word = header.text
     meaning = post.find_elements(By.CLASS_NAME, "meaning")[0].text
     contributor = post.find_elements(By.CLASS_NAME, "contributor")[0].text
