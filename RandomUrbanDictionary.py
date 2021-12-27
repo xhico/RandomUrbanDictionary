@@ -3,12 +3,14 @@
 
 # python3 -m pip install tweepy yagmail selenium --no-cache-dir
 
+import datetime
 import json
 import os
 import urllib.parse
 
 import tweepy
 import yagmail
+from dateutil.relativedelta import relativedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
@@ -35,14 +37,14 @@ auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 api = tweepy.API(auth)
 
 
-def tweet(str):
-    api.update_status(str)
-    print("Tweeted - " + str)
+def tweet(tweetStr):
+    api.update_status(tweetStr)
+    print("Tweeted - " + tweetStr)
 
     return True
 
 
-def getRandom():
+def getRandom(browser):
     browser.get("https://www.urbandictionary.com/random.php")
 
     post = browser.find_elements(By.CLASS_NAME, "def-panel")[0]
@@ -56,7 +58,26 @@ def getRandom():
     return link, word, meaning, contributor
 
 
-if __name__ == "__main__":
+def getTweets(tags, dateSince, numbTweets):
+    tags = tags.replace(" ", " OR ")
+    tweets = tweepy.Cursor(api.search_tweets, q=tags, since=dateSince).items(numbTweets)
+    tweets = [tw for tw in tweets]
+    return tweets
+
+
+def favTweets(tweets):
+    for tw in tweets:
+        try:
+            tw.favorite()
+            print(str(tw.id) + " - Like")
+        except Exception as e:
+            print(str(tw.id) + " - " + str(e))
+            pass
+
+    return True
+
+
+def main():
     options = Options()
     options.headless = True
     service = Service("/home/pi/geckodriver")
@@ -66,16 +87,30 @@ if __name__ == "__main__":
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
         print("Login as: " + api.verify_credentials().screen_name)
 
-        link, word, meaning, contributor = getRandom()
+        # Get link, word, meaning, contributor and hashtags
+        link, word, meaning, contributor = getRandom(browser)
         hashtags = "#UrbanDictionary" + " " + "#" + word.replace(" ", "")
 
+        # Reduce meaning if necessary
         if len(word + "\n\n" + meaning + "\n\n" + "(" + contributor + ")" + "\n" + link + "\n" + hashtags) > 280:
             meaning = meaning[0:280 - (6 + 2 + 3) - len(word) - len(meaning) - len(contributor) - len(link) - len(hashtags)] + "..."
 
-        tweetStr = word + "\n\n" + meaning + "\n\n" + "(" + contributor + ")" + "\n" + link + "\n" + hashtags
-        tweet(tweetStr)
+        # Tweet!
+        tweet(word + "\n\n" + meaning + "\n\n" + "(" + contributor + ")" + "\n" + link + "\n" + hashtags)
+
+        # Set deltaDate | Set numbTweets | Set Hashtags
+        deltaDate = datetime.date.today() + relativedelta(months=-1)
+        numTweets = 100
+
+        # Get tweets -> Like them
+        tws = getTweets(hashtags, deltaDate, numTweets)
+        favTweets(tws)
     except Exception as ex:
         print(ex)
         yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(ex))
     finally:
         browser.close()
+
+
+if __name__ == "__main__":
+    main()
