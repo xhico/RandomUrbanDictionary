@@ -47,13 +47,12 @@ def tweet(tweetStr):
 def getRandom(browser):
     browser.get("https://www.urbandictionary.com/random.php")
 
-    post = browser.find_elements(By.CLASS_NAME, "def-panel")[0]
-    header = post.find_elements(By.CLASS_NAME, "def-header")[0].find_elements(By.CLASS_NAME, "word")[0]
-    link = browser.find_elements(By.CLASS_NAME, "social-interaction")[0].get_attribute('href').split("&")[4]
-    link = urllib.parse.unquote(link.replace("url=", ""))
-    word = header.text
+    post = browser.find_elements(By.CLASS_NAME, "definition")[0]
+    word = post.find_elements(By.CLASS_NAME, "word")[0].text
     meaning = post.find_elements(By.CLASS_NAME, "meaning")[0].text
     contributor = post.find_elements(By.CLASS_NAME, "contributor")[0].text
+    link = post.find_elements(By.TAG_NAME, "a")[0].get_attribute('href').split("?text=")[-1]
+    link = urllib.parse.unquote(link)
 
     return link, word, meaning, contributor
 
