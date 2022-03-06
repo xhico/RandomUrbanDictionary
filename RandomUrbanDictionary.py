@@ -99,7 +99,7 @@ def main():
 
         # Set deltaDate | Set numbTweets | Set Hashtags
         deltaDate = datetime.date.today() + relativedelta(months=-1)
-        numTweets = 100
+        numTweets = 10
 
         # Get tweets -> Like them
         tws = getTweets(hashtags, deltaDate, numTweets)
