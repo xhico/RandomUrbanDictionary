@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3
 
-# python3 -m pip install tweepy yagmail selenium --no-cache-dir
+# python3 -m pip install tweepy yagmail beautifulsoup4 html5lib --no-cache-dir
 
 import datetime
 import json
 import os
-import urllib.parse
+import urllib
 
-import tweepy
 import yagmail
 from dateutil.relativedelta import relativedelta
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
+import requests
+import tweepy
+from bs4 import BeautifulSoup
 
 
 def get911(key):
@@ -36,24 +34,24 @@ auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 api = tweepy.API(auth)
 
 
+def getRandom():
+    pageContent = requests.get("https://www.urbandictionary.com/random.php").text
+    soup = BeautifulSoup(pageContent, 'html.parser')
+
+    post = soup.find("div", {"class": "definition"})
+    word = post.find("a", {"class": "word"}).text
+    meaning = post.find("div", {"class": "meaning"}).text
+    contributor = post.find("div", {"class": "contributor"}).text
+    link = post.find("a", {"data-network": "twitter"})["href"].split("?text=")[-1]
+    link = urllib.parse.unquote(link)
+    return link, word, meaning, contributor
+
+
 def tweet(tweetStr):
     api.update_status(tweetStr)
     print("Tweeted - " + tweetStr)
 
     return True
-
-
-def getRandom(browser):
-    browser.get("https://www.urbandictionary.com/random.php")
-
-    post = browser.find_elements(By.CLASS_NAME, "definition")[0]
-    word = post.find_elements(By.CLASS_NAME, "word")[0].text
-    meaning = post.find_elements(By.CLASS_NAME, "meaning")[0].text
-    contributor = post.find_elements(By.CLASS_NAME, "contributor")[0].text
-    link = post.find_elements(By.TAG_NAME, "a")[0].get_attribute('href').split("?text=")[-1]
-    link = urllib.parse.unquote(link)
-
-    return link, word, meaning, contributor
 
 
 def getTweets(tags, dateSince, numbTweets):
@@ -76,17 +74,12 @@ def favTweets(tweets):
 
 
 def main():
-    options = Options()
-    options.headless = True
-    service = Service("/home/pi/geckodriver")
-    browser = webdriver.Firefox(service=service, options=options)
-
     try:
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
         print("Login as: " + api.verify_credentials().screen_name)
 
         # Get link, word, meaning, contributor and hashtags
-        link, word, meaning, contributor = getRandom(browser)
+        link, word, meaning, contributor = getRandom()
         hashtags = "#UrbanDictionary" + " " + "#" + word.replace(" ", "")
 
         # Reduce meaning if necessary
@@ -106,8 +99,6 @@ def main():
     except Exception as ex:
         print(ex)
         yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(ex))
-    finally:
-        browser.close()
 
 
 if __name__ == "__main__":
