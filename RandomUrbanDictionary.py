@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3
 
-# python3 -m pip install tweepy yagmail beautifulsoup4 html5lib --no-cache-dir
+# python3 -m pip install tweepy yagmail beautifulsoup4 html5lib python-dateutil --no-cache-dir
 
 import datetime
 import json
@@ -54,14 +54,11 @@ def tweet(tweetStr):
     return True
 
 
-def getTweets(tags, dateSince, numbTweets):
+def favTweets(tags, numbTweets):
     tags = tags.replace(" ", " OR ")
-    tweets = tweepy.Cursor(api.search_tweets, q=tags, since=dateSince).items(numbTweets)
+    tweets = tweepy.Cursor(api.search_tweets, q=tags).items(numbTweets)
     tweets = [tw for tw in tweets]
-    return tweets
 
-
-def favTweets(tweets):
     for tw in tweets:
         try:
             tw.favorite()
@@ -89,13 +86,8 @@ def main():
         # Tweet!
         tweet(word + "\n\n" + meaning + "\n\n" + "(" + contributor + ")" + "\n" + link + "\n" + hashtags)
 
-        # Set deltaDate | Set numbTweets | Set Hashtags
-        deltaDate = datetime.date.today() + relativedelta(months=-1)
-        numTweets = 10
-
         # Get tweets -> Like them
-        tws = getTweets(hashtags, deltaDate, numTweets)
-        favTweets(tws)
+        favTweets(hashtags, 10)
     except Exception as ex:
         print(ex)
         yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(ex))
