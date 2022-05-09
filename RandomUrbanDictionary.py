@@ -3,13 +3,11 @@
 
 # python3 -m pip install tweepy yagmail beautifulsoup4 html5lib python-dateutil --no-cache-dir
 
-import datetime
 import json
 import os
-import urllib
+import urllib.parse
 
 import yagmail
-from dateutil.relativedelta import relativedelta
 import requests
 import tweepy
 from bs4 import BeautifulSoup
@@ -36,7 +34,7 @@ api = tweepy.API(auth)
 
 def getRandom():
     pageContent = requests.get("https://www.urbandictionary.com/random.php").text
-    soup = BeautifulSoup(pageContent, 'html.parser')
+    soup = BeautifulSoup(pageContent, 'html5lib')
 
     post = soup.find("div", {"class": "definition"})
     word = post.find("a", {"class": "word"}).text
