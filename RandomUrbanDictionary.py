@@ -76,6 +76,11 @@ def main():
         # Get link, word, meaning, contributor and hashtags
         link, word, meaning, contributor = getRandom()
         hashtags = "#UrbanDictionary" + " " + "#" + word.replace(" ", "")
+        print(word)
+        print(meaning)
+        print(link)
+        print(contributor)
+        print(hashtags)
 
         # Reduce meaning if necessary
         if len(word + "\n\n" + meaning + "\n\n" + "(" + contributor + ")" + "\n" + link + "\n" + hashtags) > 280:
