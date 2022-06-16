@@ -2,7 +2,7 @@
 # !/usr/bin/python3
 
 # python3 -m pip install tweepy yagmail beautifulsoup4 html5lib python-dateutil --no-cache-dir
-
+import datetime
 import json
 import os
 import urllib.parse
@@ -70,6 +70,8 @@ def favTweets(tags, numbTweets):
 
 def main():
     try:
+        print("----------------------------------------------------")
+        print(str(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")))
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
         print("Login as: " + api.verify_credentials().screen_name)
 
