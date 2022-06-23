@@ -6,7 +6,7 @@ import datetime
 import json
 import os
 import urllib.parse
-
+import psutil
 import yagmail
 import requests
 import tweepy
@@ -53,6 +53,7 @@ def tweet(tweetStr):
 
 
 def favTweets(tags, numbTweets):
+    print("favTweets")
     tags = tags.replace(" ", " OR ")
     tweets = tweepy.Cursor(api.search_tweets, q=tags).items(numbTweets)
     tweets = [tw for tw in tweets]
@@ -60,43 +61,48 @@ def favTweets(tags, numbTweets):
     for tw in tweets:
         try:
             tw.favorite()
-            print(str(tw.id) + " - Like")
         except Exception as e:
-            print(str(tw.id) + " - " + str(e))
             pass
 
     return True
 
 
 def main():
-    try:
-        print("----------------------------------------------------")
-        print(str(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")))
-        os.chdir(os.path.dirname(os.path.abspath(__file__)))
-        print("Login as: " + api.verify_credentials().screen_name)
+    print("Login as: " + api.verify_credentials().screen_name)
 
-        # Get link, word, meaning, contributor and hashtags
-        link, word, meaning, contributor = getRandom()
-        hashtags = "#UrbanDictionary" + " " + "#" + word.replace(" ", "")
-        print(word)
-        print(meaning)
-        print(link)
-        print(contributor)
-        print(hashtags)
+    # Get link, word, meaning, contributor and hashtags
+    link, word, meaning, contributor = getRandom()
+    hashtags = "#UrbanDictionary" + " " + "#" + word.replace(" ", "")
+    print(word)
+    print(meaning)
+    print(link)
+    print(contributor)
+    print(hashtags)
 
-        # Reduce meaning if necessary
-        if len(word + "\n\n" + meaning + "\n\n" + "(" + contributor + ")" + "\n" + link + "\n" + hashtags) > 280:
-            meaning = meaning[0:280 - (6 + 2 + 3) - len(word) - len(meaning) - len(contributor) - len(link) - len(hashtags)] + "..."
+    # Reduce meaning if necessary
+    if len(word + "\n\n" + meaning + "\n\n" + "(" + contributor + ")" + "\n" + link + "\n" + hashtags) > 280:
+        meaning = meaning[0:280 - (6 + 2 + 3) - len(word) - len(meaning) - len(contributor) - len(link) - len(hashtags)] + "..."
 
-        # Tweet!
-        tweet(word + "\n\n" + meaning + "\n\n" + "(" + contributor + ")" + "\n" + link + "\n" + hashtags)
+    # Tweet!
+    tweet(word + "\n\n" + meaning + "\n\n" + "(" + contributor + ")" + "\n" + link + "\n" + hashtags)
 
-        # Get tweets -> Like them
-        favTweets(hashtags, 10)
-    except Exception as ex:
-        print(ex)
-        yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(ex))
-
+    # Get tweets -> Like them
+    favTweets(hashtags, 10)
 
 if __name__ == "__main__":
-    main()
+    print("----------------------------------------------------")
+    print(str(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")))
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    
+    # Check if script is already running
+    procs = [proc for proc in psutil.process_iter(attrs=["cmdline"]) if os.path.basename(__file__) in '\t'.join(proc.info["cmdline"])]
+    if len(procs) > 2:
+        print("isRunning")
+    else:
+        try:
+            main()
+        except Exception as ex:
+            print(ex)
+            yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(ex))
+        finally:
+            print("End")
