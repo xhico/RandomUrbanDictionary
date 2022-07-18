@@ -1,0 +1,5 @@
+tweepy
+yagmail
+beautifulsoup4
+html5lib
+python-dateutil
