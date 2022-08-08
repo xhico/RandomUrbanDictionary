@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3
 
-# python3 -m pip install tweepy yagmail beautifulsoup4 html5lib python-dateutil --no-cache-dir
+# python3 -m pip install tweepy yagmail beautifulsoup4 html5lib python-dateutil psutil --no-cache-dir
 import datetime
 import json
 import os
