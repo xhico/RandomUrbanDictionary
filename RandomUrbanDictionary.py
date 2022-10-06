@@ -47,10 +47,16 @@ def getRandom():
 
 
 def tweet(tweetStr):
-    api.update_status(tweetStr)
-    print("Tweeted - " + tweetStr)
+    try:
+        api.update_status(tweetStr)
+        print("Tweeted")
+        return True
+    except Exception as ex:
+        print(ex)
+        print("Failed")
+    return False
 
-    return True
+    
 
 
 def favTweets(tags, numbTweets):
@@ -69,16 +75,14 @@ def favTweets(tags, numbTweets):
 
 
 def main():
-    print("Login as: " + api.verify_credentials().screen_name)
-
     # Get link, word, meaning, contributor and hashtags
     link, word, meaning, contributor = getRandom()
     hashtags = "#UrbanDictionary" + " " + "#" + word.replace(" ", "")
     print(word)
-    print(meaning)
-    print(link)
-    print(contributor)
-    print(hashtags)
+    # print(meaning)
+    # print(link)
+    # print(contributor)
+    # print(hashtags)
 
     # Reduce meaning if necessary
     if len(word + "\n\n" + meaning + "\n\n" + "(" + contributor + ")" + "\n" + link + "\n" + hashtags) > 280:
