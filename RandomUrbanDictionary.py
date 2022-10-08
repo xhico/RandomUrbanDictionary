@@ -2,6 +2,7 @@
 # !/usr/bin/python3
 
 # python3 -m pip install tweepy yagmail beautifulsoup4 html5lib python-dateutil psutil --no-cache-dir
+
 import datetime
 import json
 import os
@@ -12,13 +13,9 @@ import requests
 import tweepy
 import traceback
 import logging
+import base64
 from bs4 import BeautifulSoup
-
-
-def get911(key):
-    with open('/home/pi/.911') as f:
-        data = json.load(f)
-    return data[key]
+from Misc import get911
 
 
 def getRandom():
