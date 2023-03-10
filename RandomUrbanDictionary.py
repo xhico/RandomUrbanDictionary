@@ -3,8 +3,6 @@
 
 # python3 -m pip install tweepy yagmail beautifulsoup4 html5lib python-dateutil psutil --no-cache-dir
 
-import datetime
-import json
 import os
 import urllib.parse
 import psutil
@@ -13,7 +11,6 @@ import requests
 import tweepy
 import traceback
 import logging
-import base64
 from bs4 import BeautifulSoup
 from Misc import get911
 
