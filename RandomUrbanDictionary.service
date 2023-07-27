@@ -1,0 +1,12 @@
+[Unit]
+Description=RandomUrbanDictionary Service
+After=network.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/RandomUrbanDictionary/
+ExecStart=/usr/bin/python3 /home/pi/RandomUrbanDictionary/RandomUrbanDictionary.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
